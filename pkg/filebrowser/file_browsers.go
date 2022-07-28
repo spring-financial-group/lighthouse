@@ -48,7 +48,7 @@ func NewFileBrowsers(serverURL string, fb Interface) (*FileBrowsers, error) {
 	if isGitHub {
 		githubBrowser = fb
 	} else {
-		// lets create a github browser\
+		// lets create a github browser
 		configureOpts := func(opts *git.ClientFactoryOpts) {
 			opts.Token = func() []byte {
 				return []byte(os.Getenv("GITHUB_TOKEN"))

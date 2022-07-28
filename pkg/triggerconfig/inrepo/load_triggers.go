@@ -44,7 +44,7 @@ func MergeTriggers(cfg *config.Config, pluginCfg *plugins.Configuration, fileBro
 func LoadTriggerConfig(fileBrowsers *filebrowser.FileBrowsers, fc filebrowser.FetchCache, cache *ResolverCache, ownerName string, repoName string, sha string) (*triggerconfig.Config, error) {
 	var answer *triggerconfig.Config
 	err := fileBrowsers.LighthouseGitFileBrowser().WithDir(ownerName, repoName, sha, fc, func(dir string) error {
-		path := filepath.Join(dir, ".lighthouse")
+		path := filepath.Join(dir, triggerconfig.LighthouseFolderName)
 		exists, err := util.DirExists(path)
 		if err != nil {
 			return errors.Wrapf(err, "failed to check if dir exists %s", path)
@@ -61,7 +61,7 @@ func LoadTriggerConfig(fileBrowsers *filebrowser.FileBrowsers, fc filebrowser.Fe
 					continue
 				}
 				if f.IsDir() {
-					filePath := filepath.Join(path, name, "triggers.yaml")
+					filePath := filepath.Join(path, name, triggerconfig.TriggersFileName)
 					cfg, err := loadConfigFile(filePath, fileBrowsers, fc, cache, ownerName, repoName, filePath, sha)
 					if err != nil {
 						return errors.Wrapf(err, "failed to load file %s in %s/%s with sha %s", filePath, ownerName, repoName, sha)
@@ -70,8 +70,8 @@ func LoadTriggerConfig(fileBrowsers *filebrowser.FileBrowsers, fc filebrowser.Fe
 						m[filePath] = cfg
 					}
 
-				} else if name == "triggers.yaml" {
-					filePath := filepath.Join(path, "triggers.yaml")
+				} else if name == triggerconfig.TriggersFileName {
+					filePath := filepath.Join(path, triggerconfig.TriggersFileName)
 					cfg, err := loadConfigFile(filePath, fileBrowsers, fc, cache, ownerName, repoName, filePath, sha)
 					if err != nil {
 						return errors.Wrapf(err, "failed to load file %s in %s/%s with sha %s", filePath, ownerName, repoName, sha)
