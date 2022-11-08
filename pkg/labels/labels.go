@@ -28,6 +28,7 @@ const (
 	GoodFirstIssue  = "good first issue"
 	Help            = "help wanted"
 	Hold            = "do-not-merge/hold"
+	HoldTill        = "do-not-merge/hold-till"
 	InvalidOwners   = "do-not-merge/invalid-owners-file"
 	LGTM            = "lgtm"
 	LifecycleActive = "lifecycle/active"
