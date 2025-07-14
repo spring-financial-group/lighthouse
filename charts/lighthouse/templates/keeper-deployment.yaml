@@ -104,8 +104,12 @@ spec:
             optional: true
         securityContext:
 {{ toYaml .Values.keeper.containerSecurityContext | indent 10 }}
+{{- if .Values.keeper.resources }}
         resources:
 {{ toYaml .Values.keeper.resources | indent 10 }}
+{{- else }}
+{{ include "keeper.defaultResources" . | indent 10 }}
+{{- end }}
         volumeMounts:
 {{- if .Values.githubApp.enabled }}
         - name: githubapp-tokens

@@ -48,8 +48,12 @@ spec:
           {{- end }}
         securityContext:
           {{- toYaml .Values.jenkinscontroller.containerSecurityContext | nindent 12 }}
+{{- if .Values.tektoncontroller.resources }}
         resources:
-          {{- toYaml .Values.jenkinscontroller.resources | nindent 12 }}
+{{ toYaml .Values.tektoncontroller.resources | indent 12 }}
+{{- else }}
+{{ include "tektoncontroller.defaultResources" . | indent 12 }}
+{{- end }}
         volumeMounts:
           - mountPath: "/var/jenkins"
             name: jenkins-token

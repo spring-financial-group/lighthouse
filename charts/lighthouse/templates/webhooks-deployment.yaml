@@ -123,7 +123,11 @@ spec:
         securityContext:
 {{ toYaml .Values.webhooks.containerSecurityContext | indent 12 }}
         resources:
+{{- if .Values.webhooks.resources }}
 {{ toYaml .Values.webhooks.resources | indent 12 }}
+{{- else }}
+{{ include "webhooks.defaultResources" . | indent 12 }}
+{{- end }}
         volumeMounts:
 {{- if .Values.githubApp.enabled }}
           - name: githubapp-tokens

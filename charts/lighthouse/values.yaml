@@ -159,17 +159,7 @@ webhooks:
   # Uncomment to set loadBalancerSourceRanges for service
   #  loadBalancerSourceRanges: []
 
-  resources:
-    # webhooks.resources.limits -- Resource limits applied to the webhooks pods
-    limits:
-      cpu: 100m
-      # may require more memory to perform the initial 'git clone' cmd for big repositories
-      memory: 512Mi
-
-    # webhooks.resources.requests -- Resource requests applied to the webhooks pods
-    requests:
-      cpu: 80m
-      memory: 128Mi
+  resources: {}
 
   # webhooks.probe -- Liveness and readiness probes settings
   probe:
@@ -247,16 +237,7 @@ foghorn:
     # foghorn.image.pullPolicy -- Template for computing the foghorn controller docker image pull policy
     pullPolicy: "{{ .Values.image.pullPolicy }}"
 
-  resources:
-    # foghorn.resources.limits -- Resource limits applied to the foghorn pods
-    limits:
-      cpu: 100m
-      memory: 256Mi
-
-    # foghorn.resources.requests -- Resource requests applied to the foghorn pods
-    requests:
-      cpu: 80m
-      memory: 128Mi
+  resources: {}
 
   # foghorn.nodeSelector -- [Node selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) applied to the foghorn pods
   nodeSelector: {}
@@ -320,16 +301,7 @@ tektoncontroller:
   # tektoncontroller.containerSecurityContext -- [Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) applied to the tekton controller containers
   containerSecurityContext: {}
 
-  resources:
-    # tektoncontroller.resources.limits -- Resource limits applied to the tekton controller pods
-    limits:
-      cpu: 100m
-      memory: 256Mi
-
-    # tektoncontroller.resources.requests -- Resource requests applied to the tekton controller pods
-    requests:
-      cpu: 80m
-      memory: 128Mi
+  resources: {}
 
   # tektoncontroller.service -- Service settings for the tekton controller
   service:
@@ -379,16 +351,7 @@ jenkinscontroller:
   # jenkinscontroller.containerSecurityContext -- [Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) applied to the jenkins controller containers
   containerSecurityContext: {}
 
-  resources:
-    # jenkinscontroller.resources.limits -- Resource limits applied to the jenkins controller pods
-    limits:
-      cpu: 100m
-      memory: 256Mi
-
-    # jenkinscontroller.resources.requests -- Resource requests applied to the jenkins controller pods
-    requests:
-      cpu: 80m
-      memory: 128Mi
+  resources: {}
 
   # jenkinscontroller.service -- Service settings for the jenkins controller
   service:
@@ -429,16 +392,7 @@ keeper:
     externalPort: 80
     internalPort: 8888
 
-  resources:
-    # keeper.resources.limits -- Resource limits applied to the keeper pods
-    limits:
-      cpu: 400m
-      memory: 512Mi
-
-    # keeper.resources.requests -- Resource requests applied to the keeper pods
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
 
   # keeper.probe -- Liveness and readiness probes settings
   probe:
@@ -522,16 +476,7 @@ poller:
   # poller.requireReleaseSuccess -- Keep polling releases until the most recent commit status is successful
   requireReleaseSuccess: false
 
-  resources:
-    # poller.resources.limits -- Resource limits applied to the poller pods
-    limits:
-      cpu: 400m
-      memory: 512Mi
-
-    # poller.resources.requests -- Resource requests applied to the poller pods
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
 
   # poller.probe -- Liveness and readiness probes settings
   probe:

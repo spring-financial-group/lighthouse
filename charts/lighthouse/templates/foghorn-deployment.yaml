@@ -80,8 +80,12 @@ spec:
 {{- end }}
         securityContext:
 {{ toYaml .Values.foghorn.containerSecurityContext | indent 12 }}
+{{- if .Values.foghorn.resources }}
         resources:
 {{ toYaml .Values.foghorn.resources | indent 12 }}
+{{- else }}
+{{ include "foghorn.defaultResources" . | indent 12 }}
+{{- end }}
         volumeMounts:
 {{- if .Values.githubApp.enabled }}
           - name: githubapp-tokens

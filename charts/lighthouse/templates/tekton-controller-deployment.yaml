@@ -52,8 +52,12 @@ spec:
             optional: true
         securityContext:
           {{- toYaml .Values.tektoncontroller.containerSecurityContext | nindent 12 }}
+{{- if .Values.tektoncontroller.resources }}
         resources:
-          {{- toYaml .Values.tektoncontroller.resources | nindent 12 }}
+{{ toYaml .Values.tektoncontroller.resources | indent 12 }}
+{{- else }}
+{{ include "tektoncontroller.defaultResources" . | indent 12 }}
+{{- end }}
       terminationGracePeriodSeconds: {{ .Values.tektoncontroller.terminationGracePeriodSeconds }}
       nodeSelector:
         {{- toYaml .Values.tektoncontroller.nodeSelector | nindent 8 }}

@@ -119,8 +119,12 @@ spec:
         - secretRef:
             name: jx-boot-job-env-vars
             optional: true
+{{- if .Values.poller.resources }}
         resources:
 {{ toYaml .Values.poller.resources | indent 10 }}
+{{- else }}
+{{ include "poller.defaultResources" . | indent 10 }}
+{{- end }}
         volumeMounts:
 {{- if .Values.githubApp.enabled }}
         - name: githubapp-tokens

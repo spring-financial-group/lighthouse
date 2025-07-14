@@ -45,3 +45,65 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- $name := default "jenkins-controller" .Values.jenkinscontroller.nameOverride -}}
 {{- printf "%s-%s" .Chart.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+
+{{- define "webhooks.defaultResources" -}}
+limits:
+  cpu: 100m
+  memory: 512Mi
+requests:
+  cpu: 80m
+  memory: 128Mi
+{{- end }}
+
+{{- define "foghorn.defaultResources" -}}
+limits:
+  cpu: 100m
+  memory: 256Mi
+requests:
+  cpu: 80m
+  memory: 128Mi
+{{- end }}
+
+{{- define "tektoncontroller.defaultResources" -}}
+limits:
+  cpu: 100m
+  memory: 256Mi
+requests:
+  cpu: 80m
+  memory: 128Mi
+{{- end }}
+
+{{- define "jenkinscontroller.defaultResources" -}}
+limits:
+  cpu: 100m
+  memory: 256Mi
+requests:
+  cpu: 80m
+  memory: 128Mi
+{{- end }}
+
+{{- define "keeper.defaultResources" -}}
+limits:
+  cpu: 100m
+  memory: 256Mi
+requests:
+  cpu: 80m
+  memory: 128Mi
+{{- end }}
+
+{{- define "poller.defaultResources" -}}
+limits:
+  cpu: 400m
+  memory: 512Mi
+requests:
+  cpu: 100m
+  memory: 128Mi
+{{- end }}
+
+
+
+
+
+
+
