@@ -20,7 +20,9 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/jenkins-x/lighthouse/pkg/config"
@@ -92,6 +94,8 @@ func gatherOptions(fs *flag.FlagSet, args ...string) options {
 }
 
 func main() {
+	startReaper()
+
 	logrusutil.ComponentInit("keeper")
 
 	defer interrupts.WaitForGracefulShutdown()
@@ -173,5 +177,38 @@ func main() {
 func sync(c keeper.Controller) {
 	if err := c.Sync(); err != nil {
 		logrus.WithError(err).Error("Error syncing.")
+	}
+}
+
+// startReaper begins reaping orphaned child processes if this process is PID 1.
+// keeper spawns git fetch (gc.Clone), which spawns git-upload-pack as a subprocess.
+// Subprocesses are re-parented to PID 1. Without reaping, they accumulate as zombies and exhaust the cgroup PID budget.
+func startReaper() {
+	if os.Getpid() != 1 {
+		return
+	}
+
+	sigchld := make(chan os.Signal, 32)
+	signal.Notify(sigchld, syscall.SIGCHLD)
+
+	go reapLoop(sigchld)
+
+	logrus.Info("Zombie reaper started (running as PID 1)")
+}
+
+func reapLoop(sigchld <-chan os.Signal) {
+	for range sigchld {
+		reapSubprocesses()
+	}
+}
+
+func reapSubprocesses() {
+	for {
+		var ws syscall.WaitStatus
+		pid, err := syscall.Wait4(-1, &ws, syscall.WNOHANG, nil)
+		if pid <= 0 || err != nil {
+			return
+		}
+		logrus.Debugf("Reaped zombie process pid=%d exit=%d", pid, ws.ExitStatus())
 	}
 }
