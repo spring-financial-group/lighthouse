@@ -1,6 +1,8 @@
 package filebrowser
 
 import (
+	"io"
+	"net/http"
 	"os"
 	"strings"
 
@@ -21,13 +23,24 @@ const (
 
 // FileBrowsers contains the file browsers for the supported git servers
 type FileBrowsers struct {
-	cache map[string]Interface
+	cache      map[string]Interface
+	httpClient *http.Client
+}
+
+// Option configures FileBrowsers.
+type Option func(*FileBrowsers)
+
+// WithHTTPClient sets the client GetURL fetches with.
+func WithHTTPClient(c *http.Client) Option {
+	return func(f *FileBrowsers) {
+		f.httpClient = c
+	}
 }
 
 // NewFileBrowsers creates a new file browsers service for the lighthouse git server URL and file browser
 // if the current server URL is not github.com then creates a second file browser so that we can use the uses: Git URI
 // syntax for accessing github resources as well as to access the lighthouse git server too
-func NewFileBrowsers(serverURL string, fb Interface) (*FileBrowsers, error) {
+func NewFileBrowsers(serverURL string, fb Interface, opts ...Option) (*FileBrowsers, error) {
 	if serverURL == "" {
 		serverURL = GitHubURL
 	}
@@ -72,7 +85,37 @@ func NewFileBrowsers(serverURL string, fb Interface) (*FileBrowsers, error) {
 		githubBrowser = NewFileBrowserFromGitClient(githubFactory)
 	}
 	answer.cache[GitHub] = githubBrowser
+	for _, o := range opts {
+		o(answer)
+	}
 	return answer, nil
+}
+
+// GetURL fetches the file at url, unauthenticated unless a client was set with WithHTTPClient.
+func (f *FileBrowsers) GetURL(url string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get URL %s", url)
+	}
+
+	resp, err := f.client().Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to request URL %s", url)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read body from URL %s", url)
+	}
+	return data, nil
+}
+
+func (f *FileBrowsers) client() *http.Client {
+	if f.httpClient == nil {
+		return http.DefaultClient
+	}
+	return f.httpClient
 }
 
 // GitHubFileBrowser returns a git file browser for github.com

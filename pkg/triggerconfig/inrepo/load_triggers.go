@@ -1,17 +1,13 @@
 package inrepo
 
 import (
-	"encoding/base64"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/jenkins-x/lighthouse/pkg/util"
-	"github.com/sirupsen/logrus"
 
 	"github.com/jenkins-x/go-scm/scm"
 	"github.com/jenkins-x/lighthouse/pkg/config"
@@ -288,7 +284,7 @@ func loadJobBaseFromSourcePath(data []byte, fileBrowsers *filebrowser.FileBrowse
 	if data == nil {
 		_, err := url.ParseRequestURI(path)
 		if err == nil {
-			data, err = getPipelineFromURL(path)
+			data, err = fileBrowsers.GetURL(path)
 			if err != nil {
 				return errors.Wrapf(err, "failed to get pipeline from URL %s ", path)
 			}
@@ -327,34 +323,6 @@ func loadJobBaseFromSourcePath(data []byte, fileBrowsers *filebrowser.FileBrowse
 	return nil
 }
 
-func getPipelineFromURL(path string) ([]byte, error) {
-	client := &http.Client{
-		CheckRedirect: redirectPolicyFunc,
-	}
-
-	req, err := http.NewRequest(http.MethodGet, path, nil)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get URL %s", path)
-	}
-	gitToken := basicAuthGit(req.URL.Hostname())
-	if gitToken != "" {
-		req.Header.Add("Authorization", "Basic "+gitToken)
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to request URL %s", path)
-	}
-
-	defer resp.Body.Close()
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read body from URL %s", path)
-	}
-	return data, nil
-}
-
 // IsScmNotFound returns true if the error is a not found error
 func IsScmNotFound(err error) bool {
 	if err != nil {
@@ -363,27 +331,4 @@ func IsScmNotFound(err error) bool {
 		return strings.Contains(err.Error(), scm.ErrNotFound.Error())
 	}
 	return false
-}
-
-func basicAuthGit(host string) string {
-	if host == os.Getenv("GIT_SERVER") {
-		user := os.Getenv("GIT_USER")
-		token := os.Getenv("GIT_TOKEN")
-		if user != "" && token != "" {
-			auth := user + ":" + token
-			return base64.StdEncoding.EncodeToString([]byte(auth))
-		}
-	} else {
-		logrus.Infof("for security reasons not sending git token to '%s'"+
-			" since it does not match the configured GIT_SERVER", host)
-	}
-	return ""
-}
-
-func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
-	gitToken := basicAuthGit(req.URL.Hostname())
-	if gitToken != "" {
-		req.Header.Add("Authorization", "Basic "+gitToken)
-	}
-	return nil
 }

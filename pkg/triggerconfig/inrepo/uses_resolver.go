@@ -91,7 +91,7 @@ func (r *UsesResolver) GetData(path string, ignoreNotExist bool) ([]byte, error)
 	}
 
 	if strings.Contains(path, "://") {
-		data, err := getPipelineFromURL(path)
+		data, err := r.FileBrowsers.GetURL(path)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get pipeline from URL %s ", path)
 		}

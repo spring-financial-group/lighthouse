@@ -115,7 +115,8 @@ func New(cfg config.Getter, o Options) (*ClientSet, error) {
 		return nil, errors.Join(fmt.Errorf("creating git client factory for %s: %w", server, err), gitClient.Clean())
 	}
 
-	fileBrowsers, err := filebrowser.NewFileBrowsers(server, filebrowser.NewFileBrowserFromGitClient(gitFactory))
+	fileBrowsers, err := filebrowser.NewFileBrowsers(server, filebrowser.NewFileBrowserFromGitClient(gitFactory),
+		filebrowser.WithHTTPClient(serverAuthClient(u, creds)))
 	if err != nil {
 		return nil, errors.Join(fmt.Errorf("creating file browsers for %s: %w", server, err), gitClient.Clean(), gitFactory.Clean())
 	}
